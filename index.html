@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Kasir Sederhana</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; background: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        button { padding: 10px 15px; margin-top: 10px; border: none; cursor: pointer; }
+        button:hover { opacity: 0.8; }
+        .btn-add { background-color: #28a745; color: white; }
+        .btn-delete { background-color: #dc3545; color: white; }
+        .btn-reset { background-color: #007bff; color: white; }
+        .btn-pay { background-color: #ff9800; color: white; }
+        h2, h3 { color: #333; }
+        input { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Aplikasi Kasir Sederhana</h2>
+    <label>Nama Barang:</label>
+    <input type="text" id="namaBarang">
+    <label>Harga:</label>
+    <input type="number" id="hargaBarang">
+    <label>Jumlah:</label>
+    <input type="number" id="jumlahBarang">
+    <button class="btn-add" onclick="tambahBarang()">Tambah</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Barang</th>
+                <th>Harga</th>
+                <th>Jumlah</th>
+                <th>Total</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="tabelKasir"></tbody>
+    </table>
+    
+    <h3>Total Bayar: <span id="totalBayar">0</span></h3>
+    <label>Diskon (%):</label>
+    <input type="number" id="diskon" value="0">
+    <h3>Total Setelah Diskon: <span id="totalSetelahDiskon">0</span></h3>
+    <label>Bayar:</label>
+    <input type="number" id="bayar">
+    <button class="btn-pay" onclick="hitungKembalian()">Bayar</button>
+    <h3>Kembalian: <span id="kembalian">0</span></h3>
+    <button class="btn-reset" onclick="resetTransaksi()">Reset</button>
+    
+    <script>
+        let totalHarga = 0;
+
+        function tambahBarang() {
+            const nama = document.getElementById("namaBarang").value;
+            const harga = parseInt(document.getElementById("hargaBarang").value);
+            const jumlah = parseInt(document.getElementById("jumlahBarang").value);
+            if (!nama || isNaN(harga) || isNaN(jumlah) || harga <= 0 || jumlah <= 0) {
+                alert("Masukkan data yang valid!");
+                return;
+            }
+            
+            const total = harga * jumlah;
+            totalHarga += total;
+            
+            const tabel = document.getElementById("tabelKasir");
+            const row = tabel.insertRow();
+            row.innerHTML = `
+                <td>${nama}</td>
+                <td>${harga}</td>
+                <td>${jumlah}</td>
+                <td>${total}</td>
+                <td><button class="btn-delete" onclick="hapusBarang(this, ${total})">Hapus</button></td>
+            `;
+            
+            updateTotal();
+            document.getElementById("namaBarang").value = "";
+            document.getElementById("hargaBarang").value = "";
+            document.getElementById("jumlahBarang").value = "";
+        }
+        
+        function hapusBarang(button, total) {
+            totalHarga -= total;
+            updateTotal();
+            button.parentElement.parentElement.remove();
+        }
+        
+        function updateTotal() {
+            document.getElementById("totalBayar").innerText = totalHarga;
+            hitungDiskon();
+        }
+        
+        function hitungDiskon() {
+            const diskon = parseFloat(document.getElementById("diskon").value);
+            const totalSetelahDiskon = totalHarga - (totalHarga * (diskon / 100));
+            document.getElementById("totalSetelahDiskon").innerText = totalSetelahDiskon;
+            return totalSetelahDiskon;
+        }
+        
+        function hitungKembalian() {
+            const totalSetelahDiskon = hitungDiskon();
+            const bayar = parseFloat(document.getElementById("bayar").value);
+            if (isNaN(bayar) || bayar < totalSetelahDiskon) {
+                alert("Jumlah bayar tidak cukup!");
+                return;
+            }
+            const kembalian = bayar - totalSetelahDiskon;
+            document.getElementById("kembalian").innerText = kembalian;
+        }
+        
+        function resetTransaksi() {
+            document.getElementById("tabelKasir").innerHTML = "";
+            document.getElementById("totalBayar").innerText = "0";
+            document.getElementById("totalSetelahDiskon").innerText = "0";
+            document.getElementById("diskon").value = "0";
+            document.getElementById("bayar").value = "";
+            document.getElementById("kembalian").innerText = "0";
+            totalHarga = 0;
+        }
+    </script>
+</body>
+</html>
